@@ -121,8 +121,8 @@ int main() {
     NODE food = GenerateFood(snake);
     Draw(snake, food);
     while (true) {
-        Board();
         if (kbhit()) {
+            Board();
             ch = getch();
             switch (ch) {
             case 'd':
