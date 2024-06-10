@@ -8,12 +8,10 @@ using namespace std;
 
 const int WIDTH = 40;
 const int HEIGHT = 20;
-int x,y;
+int xTable,yTable;
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 void gotoxy(int x, int y) {
     COORD pos;
     pos.X = x;
@@ -35,7 +33,7 @@ void Board()
             if(i==0||i==HEIGHT-1){
                 cout<<'#';
             }
-            else if(i==y && j==x) cout<<'0';
+            else if(i==yTable && j==xTable) cout<<'0';
             else cout << " ";
         }
         cout<<"#\n";
@@ -64,7 +62,7 @@ void Draw(SNAKE snake, NODE food) {
         gotoxy(snake.A[i].x*2, snake.A[i].y);
         cout << "O";
     }
-    gotoxy(food.x*2 , food.y);
+    gotoxy(food.x *2 , food.y );
     cout << "@";
     gotoxy(0, HEIGHT + 2);
     cout << "Score: " << snake.Length - 1;
@@ -91,7 +89,7 @@ void Run(SNAKE& snake, int dir) {
 }
 
 bool CheckCollision(SNAKE snake) {
-    if(snake.A[0].x == HEIGHT || snake.A[0].y == WIDTH || snake.A[0].x == 0 || snake.A[0].y == 0) return true;
+    if(snake.A[0].x >= WIDTH || snake.A[0].y >= HEIGHT || snake.A[0].x == 0 || snake.A[0].y == 0) return true;
     for (int i = 1; i < snake.Length; i++) {
         if (snake.A[0].x == snake.A[i].x && snake.A[0].y == snake.A[i].y) {
             return true;
@@ -114,12 +112,12 @@ NODE GenerateFood(SNAKE snake) {
     do {
         overlap = false;
         food.x = rand() % HEIGHT / 2;
-        while(food.x==0 || food.x == HEIGHT){
+        while(food.x==0 || food.x >= WIDTH){
             food.x = rand() % HEIGHT / 2;
         }
         food.y = rand() % WIDTH;
-        while(food.y==0 || food.y == WIDTH){
-            food.y = rand() % WIDTH / 2;
+        while(food.y==0 || food.y >= HEIGHT){
+            food.y = rand() % WIDTH ;
         }
         for (int i = 0; i < snake.Length; i++) {
             if (snake.A[i].x == food.x && snake.A[i].y == food.y) {
@@ -141,7 +139,6 @@ int main() {
     Draw(snake, food);
     ClearScreen();
     while (true) {
-        ClearScreen();
         if (kbhit()) {
             ch = getch();
             switch (ch) {
@@ -172,8 +169,10 @@ int main() {
         if (EatFood(snake, food)) {
             food = GenerateFood(snake);
         }
+        ClearScreen();
         Draw(snake, food);
         Sleep(500);
     }
     return 0;
 }
+
