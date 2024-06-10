@@ -8,17 +8,29 @@ using namespace std;
 
 const int WIDTH = 40;
 const int HEIGHT = 20;
+int x,y;
+
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
 void gotoxy(int x, int y) {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     COORD pos;
     pos.X = x;
     pos.Y = y;
-    SetConsoleCursorPosition(hConsole, pos);
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
+void ClearScreen()
+{
+    COORD cursorPosition;
+    cursorPosition.X = 0;
+    cursorPosition.Y = 0;
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
 }
 void Board()
 {
     for(int i =0;i < HEIGHT; i++){
-        cout << "\t\t#";
+        cout << "#";
         for(int j = 0;j < WIDTH -2;j++){
             if(i==0||i==HEIGHT-1){
                 cout<<'#';
@@ -39,23 +51,23 @@ struct SNAKE {
 };
 
 void Init(SNAKE& snake) {
-    snake.Length = 7;
+    snake.Length = 1;
     for (int i = 0; i < snake.Length; i++) {
-        snake.A[i].x = 9 - i;
-        snake.A[i].y = 5;
+        snake.A[i].x = 1;
+        snake.A[i].y = 1;
     }
 }
 
 void Draw(SNAKE snake, NODE food) {
-    system("cls");
+    Board();
     for (int i = 0; i < snake.Length; i++) {
-        gotoxy(snake.A[i].x * 2, snake.A[i].y);
+        gotoxy(snake.A[i].x*2, snake.A[i].y);
         cout << "O";
     }
-    gotoxy(food.x * 2, food.y);
+    gotoxy(food.x*2 , food.y);
     cout << "@";
     gotoxy(0, HEIGHT + 2);
-    cout << "Score: " << snake.Length - 7;
+    cout << "Score: " << snake.Length - 1;
 }
 
 void Run(SNAKE& snake, int dir) {
@@ -79,6 +91,7 @@ void Run(SNAKE& snake, int dir) {
 }
 
 bool CheckCollision(SNAKE snake) {
+    if(snake.A[0].x == HEIGHT || snake.A[0].y == WIDTH || snake.A[0].x == 0 || snake.A[0].y == 0) return true;
     for (int i = 1; i < snake.Length; i++) {
         if (snake.A[0].x == snake.A[i].x && snake.A[0].y == snake.A[i].y) {
             return true;
@@ -100,8 +113,14 @@ NODE GenerateFood(SNAKE snake) {
     bool overlap;
     do {
         overlap = false;
-        food.x = rand() % WIDTH;
-        food.y = rand() % HEIGHT;
+        food.x = rand() % HEIGHT / 2;
+        while(food.x==0 || food.x == HEIGHT){
+            food.x = rand() % HEIGHT / 2;
+        }
+        food.y = rand() % WIDTH;
+        while(food.y==0 || food.y == WIDTH){
+            food.y = rand() % WIDTH / 2;
+        }
         for (int i = 0; i < snake.Length; i++) {
             if (snake.A[i].x == food.x && snake.A[i].y == food.y) {
                 overlap = true;
@@ -120,9 +139,10 @@ int main() {
     Init(snake);
     NODE food = GenerateFood(snake);
     Draw(snake, food);
+    ClearScreen();
     while (true) {
+        ClearScreen();
         if (kbhit()) {
-            Board();
             ch = getch();
             switch (ch) {
             case 'd':
